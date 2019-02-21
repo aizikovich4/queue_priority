@@ -1,56 +1,53 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct heapitem {
-    int priority;   /* priority of elemen */
-    char *value;    /* data*/
+struct Heap_item {
+    int priority;               /* priority of elemen */
+    char *value;                /* data*/
 };
 
-struct heap {
-    int maxsize; /* max heap size */
-    int nitems; /* count of elements ih heap */
-    struct heapitem *items;
+struct Heap {
+    int maxsize;         /* max heap size */
+    int count_items;             /* count of elements ih heap */
+    struct Heap_item *items;
 };
 
-struct heap *heap_create(int maxsize)
+struct Heap *heap_create(int maxsize)
 {
-    struct heap *h;
-    h = malloc(sizeof(*h));
-    if (h != NULL)
+    struct Heap *heap_ptr;
+    heap_ptr = malloc(sizeof(struct Heap));
+    if (heap_ptr != NULL)
     {
-        h->maxsize = maxsize;
-        h->nitems = 0;
-        h->items = malloc(sizeof(struct heapitem) *
-        (maxsize + 1));
+        heap_ptr->maxsize = maxsize;
+        heap_ptr->count_items = 0;
+        heap_ptr->items = malloc(sizeof(struct Heap_item) * (maxsize + 1));
 
-        if (h->items == NULL)
+        if (heap_ptr->items == NULL)
         {
-            free(h);
-            return NULL;
+            exit(3);
         }
     }
-
-    return h;
+    return heap_ptr;
 }
 
-void heap_free(struct heap *h)
+void heap_free(struct Heap *h)
 {
     free(h->items);
     free(h);
 }
 
-void heap_swap(struct heapitem *a, struct heapitem *b)
+void heap_swap(struct Heap_item *a, struct Heap_item *b)
 {
-    struct heapitem temp;
+    struct Heap_item temp;
     temp = *a;
     *a = *b;
     *b = temp;
 }
 
-struct heapitem heap_max(struct heap *h)
+struct Heap_item heap_max(struct Heap *h)
 {
-    struct heapitem erritem = {-1, NULL};
-    if (h->nitems > 0)
+    struct Heap_item erritem = {-1, NULL};
+    if (h->count_items > 0)
     {
         return h->items[1];
     }
@@ -62,82 +59,82 @@ struct heapitem heap_max(struct heap *h)
     }
 }
 
-int heap_insert(struct heap *h, int priority, char *value)
+int heap_insert(struct Heap *heap, int priority, char *value)
 {
     int i;
-    if (h->nitems >= h->maxsize)
+    if (heap->count_items >= heap->maxsize)
     {
         fprintf(stderr,
         "heap: Heap overflow.\n");
         return -1;
     }
-    h->nitems++;
-    h->items[h->nitems].priority = priority;
-    h->items[h->nitems].value = value;
+    heap->count_items++;
+    heap->items[heap->count_items].priority = priority;
+    heap->items[heap->count_items].value = value;
     /* Продвигаем элемент вверх */
-    for (i = h->nitems;    i > 1 && h->items[i].priority > h->items[i / 2].priority;  i = i / 2)
+    for (i = heap->count_items;    i > 1 && heap->items[i].priority > heap->items[i / 2].priority;  i = i / 2)
     {
-        heap_swap(&h->items[i], &h->items[i / 2]);
+        heap_swap(&heap->items[i], &heap->items[i / 2]);
     }
     return 0;
 }
 
-struct heapitem heap_removemax(struct heap *h)
+struct Heap_item heap_removemax(struct Heap *heap)
 {
     int k, n, j;
-    heap_swap(&h->items[1],
-    &h->items[h->nitems]);
-    for (k = 1, n = h->nitems - 1; 2 * k <= n;  k = j)
+    heap_swap(&heap->items[1],
+    &heap->items[heap->count_items]);
+    for (k = 1, n = heap->count_items - 1; 2 * k <= n;  k = j)
     {
         j = 2 * k;
-        if (j < n && h->items[j].priority <  h->items[j + 1].priority)
+        if (j < n && heap->items[j].priority <  heap->items[j + 1].priority)
         {
             j++;
         }
-        if (h->items[k].priority >= h->items[j].priority)
+        if (heap->items[k].priority >= heap->items[j].priority)
         {
             break;
         }
-        heap_swap(&h->items[k], &h->items[j]);
+        heap_swap(&heap->items[k], &heap->items[j]);
     }
-    return h->items[h->nitems--];
+    return heap->items[heap->count_items--];
 }
 
 
 
 int main(void)
 {
-    struct heap *h;
-    struct heapitem item;
-    h = heap_create(20);
-    heap_insert(h, 10, "Buy bread");
-    heap_insert(h, 9, "Pay for the Internet");
-    heap_insert(h, 15, "Visit library5");
-    heap_insert(h, 15, "Visit library1");
-    heap_insert(h, 15, "Visit library2");
-    heap_insert(h, 15, "Visit library3");
-    heap_insert(h, 15, "Visit library4");
+    struct Heap *heap;
+    struct Heap_item item;
+    heap = heap_create(20);
+    heap_insert(heap, 10, "Buy bread");
+    heap_insert(heap, 9, "Pay for the Internet");
+    heap_insert(heap, 15, "Visit library5");
+    heap_insert(heap, 15, "Visit library1");
+    heap_insert(heap, 15, "Visit library2");
+    heap_insert(heap, 15, "Visit library3");
+    heap_insert(heap, 15, "Visit library4");
 
 
-    item = heap_removemax(h);
+    item = heap_removemax(heap);
     printf("Item: %d - %s \n", item.priority, item.value);
-    item = heap_removemax(h);
+    item = heap_removemax(heap);
     printf("Item: %d - %s \n", item.priority, item.value);
-    item = heap_removemax(h);
+    item = heap_removemax(heap);
     printf("Item: %d - %s \n", item.priority, item.value);
-    item = heap_removemax(h);
+    item = heap_removemax(heap);
     printf("Item: %d - %s \n", item.priority, item.value);
-    item = heap_removemax(h);
+    item = heap_removemax(heap);
     printf("Item: %d - %s \n", item.priority, item.value);
-    item = heap_removemax(h);
+    item = heap_removemax(heap);
     printf("Item: %d - %s \n", item.priority, item.value);
-    item = heap_removemax(h);
+    item = heap_removemax(heap);
     printf("Item: %d - %s \n", item.priority, item.value);
-    item = heap_removemax(h);
+    item = heap_removemax(heap);
     printf("Item: %d - %s \n", item.priority, item.value);
 
 
-    heap_free(h);
+    heap_free(heap);
 
     return 0;
 }
