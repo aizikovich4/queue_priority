@@ -7,27 +7,29 @@ struct Heap_item {
 };
 
 struct Heap {
-    int maxsize;         /* max heap size */
+    int maxsize;                 /* max heap size */
     int count_items;             /* count of elements ih heap */
     struct Heap_item *items;
 };
 
 struct Heap *heap_create(int maxsize)
 {
-    struct Heap *heap_ptr;
+    struct Heap *heap_ptr=NULL;
     heap_ptr = malloc(sizeof(struct Heap));
-    if (heap_ptr != NULL)
+    if (heap_ptr)
     {
         heap_ptr->maxsize = maxsize;
         heap_ptr->count_items = 0;
-        heap_ptr->items = malloc(sizeof(struct Heap_item) * (maxsize + 1));
-
-        if (heap_ptr->items == NULL)
+        heap_ptr->items = malloc(sizeof(struct Heap_item) * maxsize );
+        if (!heap_ptr->items)
         {
-            exit(3);
+            exit(1);
         }
+        return heap_ptr;
     }
-    return heap_ptr;
+    else
+        exit(1);
+
 }
 
 void heap_free(struct Heap *h)
@@ -36,15 +38,14 @@ void heap_free(struct Heap *h)
     free(h);
 }
 
-void heap_swap(struct Heap_item *a, struct Heap_item *b)
+void heap_swap(struct Heap_item *first, struct Heap_item *second)
 {
-    struct Heap_item temp;
-    temp = *a;
-    *a = *b;
-    *b = temp;
+    struct Heap_item tmp = *first;
+    *first = *second;
+    *second = tmp;
 }
 
-struct Heap_item heap_max(struct Heap *h)
+struct Heap_item heap_max(const struct Heap *h)
 {
     struct Heap_item erritem = {-1, NULL};
     if (h->count_items > 0)
@@ -53,8 +54,7 @@ struct Heap_item heap_max(struct Heap *h)
     }
     else
     {
-        fprintf(stderr,
-        "heap: Heap is empty.\n");
+        printf("heap: Heap is empty.\n");
         return erritem;
     }
 }
@@ -64,17 +64,16 @@ int heap_insert(struct Heap *heap, int priority, char *value)
     int i;
     if (heap->count_items >= heap->maxsize)
     {
-        fprintf(stderr,
-        "heap: Heap overflow.\n");
+        printf("heap: Heap overflow.\n");
         return -1;
     }
     heap->count_items++;
     heap->items[heap->count_items].priority = priority;
     heap->items[heap->count_items].value = value;
     /* Продвигаем элемент вверх */
-    for (i = heap->count_items;    i > 1 && heap->items[i].priority > heap->items[i / 2].priority;  i = i / 2)
+    for (i = heap->count_items;  i > 1 && heap->items[i].priority > heap->items[i/2].priority;  i = i/2)
     {
-        heap_swap(&heap->items[i], &heap->items[i / 2]);
+        heap_swap(&heap->items[i], &heap->items[i/2]);
     }
     return 0;
 }
@@ -82,8 +81,7 @@ int heap_insert(struct Heap *heap, int priority, char *value)
 struct Heap_item heap_removemax(struct Heap *heap)
 {
     int k, n, j;
-    heap_swap(&heap->items[1],
-    &heap->items[heap->count_items]);
+    heap_swap(&heap->items[1], &heap->items[heap->count_items]);
     for (k = 1, n = heap->count_items - 1; 2 * k <= n;  k = j)
     {
         j = 2 * k;
@@ -100,6 +98,10 @@ struct Heap_item heap_removemax(struct Heap *heap)
     return heap->items[heap->count_items--];
 }
 
+unsigned int heap_size(struct Heap *heap)
+{
+    return heap->count_items;
+}
 
 
 int main(void)
@@ -114,25 +116,15 @@ int main(void)
     heap_insert(heap, 15, "Visit library2");
     heap_insert(heap, 15, "Visit library3");
     heap_insert(heap, 15, "Visit library4");
+    heap_insert(heap, 6, "666");
+    heap_insert(heap, 7, "777");
+    heap_insert(heap, 9, "999");
 
-
-    item = heap_removemax(heap);
-    printf("Item: %d - %s \n", item.priority, item.value);
-    item = heap_removemax(heap);
-    printf("Item: %d - %s \n", item.priority, item.value);
-    item = heap_removemax(heap);
-    printf("Item: %d - %s \n", item.priority, item.value);
-    item = heap_removemax(heap);
-    printf("Item: %d - %s \n", item.priority, item.value);
-    item = heap_removemax(heap);
-    printf("Item: %d - %s \n", item.priority, item.value);
-    item = heap_removemax(heap);
-    printf("Item: %d - %s \n", item.priority, item.value);
-    item = heap_removemax(heap);
-    printf("Item: %d - %s \n", item.priority, item.value);
-    item = heap_removemax(heap);
-    printf("Item: %d - %s \n", item.priority, item.value);
-
+    while(heap_size(heap))
+    {
+        item = heap_removemax(heap);
+        printf("Item: %d - %s \n", item.priority, item.value);
+    }
 
     heap_free(heap);
 
