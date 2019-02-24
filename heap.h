@@ -5,7 +5,7 @@
 
 struct Heap_item {
     int priority;               // priority of elemen
-    unsigned long thread_id;
+    pthread_t thread_id;
     char *value;                // data
 };
 

@@ -49,7 +49,7 @@ struct Heap_item heap_max(const struct Heap *heap)
 {
     int res=0;
     struct Heap_item ret_item = {-1,0, NULL};
-#ifdef MUTEX_DEBUG_ON
+#ifdef MUTEX_DEBUG
 printf("heap_max mutex lock \n ");
 #endif
     pthread_mutex_lock(&mutex);
@@ -61,7 +61,7 @@ printf("heap_max mutex lock \n ");
             printf("Heap is empty\n");
 
     pthread_mutex_unlock(&mutex);
-#ifdef MUTEX_DEBUG_ON
+#ifdef MUTEX_DEBUG
 printf("heap_max mutex unlock \n ");
 #endif
     return ret_item;
@@ -70,11 +70,9 @@ printf("heap_max mutex unlock \n ");
 
 void heap_display(struct Heap *heap) {
     int i;
-#ifdef MUTEX_DEBUG_ON
+#ifdef MUTEX_DEBUG
 printf("heap_display mutex lock \n ");
 #endif
-heap->callback_events_queue(HIGH_WATER_MARK);
-
      pthread_mutex_lock(&mutex);
      printf("Queue: ");
         for(i=0; i<=heap->count_items; ++i) {
@@ -82,7 +80,7 @@ heap->callback_events_queue(HIGH_WATER_MARK);
         }
         printf("\n");
      pthread_mutex_unlock(&mutex);
-#ifdef MUTEX_DEBUG_ON
+#ifdef MUTEX_DEBUG
 printf("heap_display mutex unlock \n ");
 #endif
 }
@@ -92,13 +90,17 @@ int heap_insert(struct Heap *heap, int priority, char *value, const unsigned lon
 {
     int i=0;
     struct Heap_item *tmp=NULL;
-    #ifdef MUTEX_DEBUG_ON
+    #ifdef MUTEX_DEBUG
     printf("heap_insert mutex lock \n ");
     #endif
     pthread_mutex_lock(&mutex);
     if (heap->count_items >= heap->maxsize)
     {
-        heap->callback_events_queue(HIGH_WATER_MARK);
+        pthread_mutex_unlock(&mutex);
+        #ifdef MUTEX_DEBUG
+         printf("heap_insert mutex unlock \n ");
+        #endif
+         heap->callback_events_queue(HIGH_WATER_MARK);
         return 1;
     }
 
@@ -113,7 +115,7 @@ int heap_insert(struct Heap *heap, int priority, char *value, const unsigned lon
         heap_swap(&heap->items[i], &heap->items[i/2]);
     }
     pthread_mutex_unlock(&mutex);
-    #ifdef MUTEX_DEBUG_ON
+    #ifdef MUTEX_DEBUG
     printf("heap_insert mutex unlock \n ");
     #endif
     return 0;
@@ -123,7 +125,7 @@ int heap_removemax(struct Heap *heap, struct Heap_item *value)
 {
     int largest_index, leftChild;
     int end_heap  ;
-    #ifdef MUTEX_DEBUG_ON
+    #ifdef MUTEX_DEBUG
         printf("heap_removemax mutex lock \n ");
     #endif
     pthread_mutex_lock(&mutex);
@@ -131,7 +133,7 @@ int heap_removemax(struct Heap *heap, struct Heap_item *value)
     if(!heap->count_items)
     {
         pthread_mutex_unlock(&mutex);
-        #ifdef MUTEX_DEBUG_ON
+        #ifdef MUTEX_DEBUG
         printf("heap_removemax mutex unlock \n ");
         #endif
         return 0;
@@ -157,7 +159,7 @@ int heap_removemax(struct Heap *heap, struct Heap_item *value)
             heap->callback_events_queue(LOW_WATER_MARK);
 
     pthread_mutex_unlock(&mutex);
-    #ifdef MUTEX_DEBUG_ON
+    #ifdef MUTEX_DEBUG
     printf("heap_removemax mutex unlock \n ");
     #endif
     return 1;
@@ -166,13 +168,13 @@ int heap_removemax(struct Heap *heap, struct Heap_item *value)
 unsigned int heap_size(struct Heap *heap)
 {
     int count=0;
-#ifdef MUTEX_DEBUG_ON
+#ifdef MUTEX_DEBUG
     printf("heap_size mutex lock \n ");
 #endif
     pthread_mutex_lock(&mutex);
         count = heap->count_items;
     pthread_mutex_unlock(&mutex);
-#ifdef MUTEX_DEBUG_ON
+#ifdef MUTEX_DEBUG
     printf("heap_size mutex unlock \n ");
 #endif
     return count;
