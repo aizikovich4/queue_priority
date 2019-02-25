@@ -47,7 +47,7 @@ For start:
 ```
 ./SperasoftPriorityQueue 
 ```
-Example of oupput: 
+Example of output: 
 ```
 Writer insert item: 5 - Task 5,  3030383424 
 Queue: 0 5 2 1 0 
@@ -56,3 +56,9 @@ Queue: 0 2 0 1
 	 Reader(3051096896) get item: prior(2), Task 2, 3076275008 
 Writer insert item: 8 - Task 8,  3076275008
 ```
+What we see above:  writer-thread  send element with priority 5, additional field - "Task5" and 3030383424(thread ID). That values do not have any hidden means, only for example.
+After that we see "Queue: 0 5 2 1 0 " - it from reader-thread - it internal view of prioritet queue - they sorted by prioritet. Next reader-thread get element from queue with max priority. In output - we see current thread id, priority, and additional info. It is also for clarity, not means some usefull info.
+
+If see many of "LOW_WATER_MARK received" - increase count of writers - press 'w' and 'Enter', or decrease count of readers - press 'a'
+If see many of "HIGH_WATER_MARK received" - incread count of readers - press 'a' and 'Enter', or decrease count of writers - press 's'
+
