@@ -11,7 +11,7 @@ A few requirements:
 6. Test application should come with some instructions for compiling it.
 
 
-it builds with GCC 5.4.0 on Ubuntu 16.04(x86), use pthread library and CMake (min. 2.8).
+# Review of project:
 How application look inside:
 1) Next defines: 
 #define COUNT_WRITERS       1
@@ -31,3 +31,7 @@ How it use:
   s - kill writers thread
 (press "Enter" after every command)
 It is my local stress-testing tools 8)
+
+
+
+## it builds with GCC 5.4.0 on Ubuntu 16.04(x86), use pthread library and CMake (min. 2.8).
