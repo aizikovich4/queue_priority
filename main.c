@@ -7,27 +7,27 @@
 
 #include "heap.h"
 
-#define COUNT_WRITERS   1
-#define COUNT_READERS   1
+#define COUNT_WRITERS       1
+#define COUNT_READERS       1
 
-#define MAX_ADDS_THREADS     5
+#define MAX_ADDS_THREADS     10
 
-void events_queue_handler(int flag);
-void* thread_writers(void *par);
-void* thread_reader(void *par);
-void* user_console_thread(void *par);
+static void events_queue_handler(int flag);
+static void* thread_writers(void *par);
+static void* thread_reader(void *par);
+static void* user_console_thread(void *par);
 static void run_threads();
 
 
-pthread_t tid_writer[COUNT_WRITERS];
-pthread_t tid_reader[COUNT_READERS];
-pthread_t user_console;
+static pthread_t tid_writer[COUNT_WRITERS];
+static pthread_t tid_reader[COUNT_READERS];
+static pthread_t user_console;
 static pthread_mutex_t mutex_thread = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 struct Heap *heap;
 static unsigned long time_read  = 250000;
 static unsigned long time_write = 250000;
-int err;
+static int err=0;
 static char *mas[]= {"Task 0", "Task 1", "Task 2", "Task 3", "Task 4", "Task 5", "Task 6", "Task 7", "Task 8", "Task 9", "Task 10"};
 
 void *thread_writers(void *par)
@@ -43,7 +43,6 @@ void *thread_writers(void *par)
         if(!heap_insert(heap, r, mas[r],pthread_self()))
         {
             printf("Writer insert item: %d - %s,  %lu \n",r, mas[r], pthread_self());
-            //heap_display(heap);
         }
         usleep(time_write); //sleep at this moment, for exclude queue overflow
     }
@@ -62,7 +61,7 @@ void* thread_reader(void *par)
         if(heap_removemax(heap, &item))   //get size ant removemax at once, else - race condition
         {
             printf("\t Reader(%lu) get item: %d - %s,  %lu \n",pthread_self(), item.priority, item.value, item.thread_id);
-            usleep(time_read); //emulate hard work of processor on new element from queue
+            usleep(time_read); //emulate hard work of processor with new element from queue
         }
     }
 }
@@ -72,10 +71,10 @@ void events_queue_handler(int flag)         //it custom handler events from queu
 {
     switch (flag) {
         case LOW_WATER_MARK:
-              //printf("LOW_WATER_MARK received \n");
+              printf("LOW_WATER_MARK received \n");
             break;
         case HIGH_WATER_MARK:
-              //printf("HIGH_WATER_MARK received \n");
+              printf("HIGH_WATER_MARK received \n");
             break;
         default:
             break;
@@ -169,9 +168,9 @@ void* user_console_thread(void *par)
                 break;
             }
         }
-
     }
 }
+
 int main(void)
 {
 
@@ -181,15 +180,12 @@ int main(void)
 
     run_threads();
 
-    //printf("Max element with priority now: %d, %s \n",heap_max(heap).priority, heap_max(heap).value);
-
     while(1)
     {
 
     }
     heap_free(heap);
     pthread_mutex_destroy(&mutex_thread);
-     pthread_cond_destroy(&cond);
     return 0;
 }
 
