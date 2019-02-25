@@ -34,6 +34,25 @@ How it use:
 (press "Enter" after every command)
 It is my local stress-testing tools 8)
 
-
-
 ## it builds with GCC 5.4.0 on Ubuntu 16.04(x86), use pthread library and CMake (min. 2.8).
+## How build:
+Go to the directory with source
+```
+mkdir build
+cd  build
+cmake ..
+make
+```
+For start:
+```
+./SperasoftPriorityQueue 
+```
+Example of oupput: 
+```
+Writer insert item: 5 - Task 5,  3030383424 
+Queue: 0 5 2 1 0 
+	 Reader(3059489600) get item: prior(5), Task 5, 3030383424 
+Queue: 0 2 0 1 
+	 Reader(3051096896) get item: prior(2), Task 2, 3076275008 
+Writer insert item: 8 - Task 8,  3076275008
+```
