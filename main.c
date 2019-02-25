@@ -7,10 +7,10 @@
 
 #include "heap.h"
 
-#define COUNT_WRITERS       1
-#define COUNT_READERS       1
+#define COUNT_WRITERS       2
+#define COUNT_READERS       2
 
-#define MAX_ADDS_THREADS     10
+#define MAX_ADDS_THREADS     100
 
 static void events_queue_handler(int flag);
 static void* thread_writers(void *par);
@@ -60,7 +60,7 @@ void* thread_reader(void *par)
             heap_display(heap);
         if(heap_removemax(heap, &item))   //get size ant removemax at once, else - race condition
         {
-            printf("\t Reader(%lu) get item: %d - %s,  %lu \n",pthread_self(), item.priority, item.value, item.thread_id);
+            printf("\t Reader(%lu) get item: prior(%d), %s, %lu \n",pthread_self(), item.priority, item.value, item.thread_id);
             usleep(time_read); //emulate hard work of processor with new element from queue
         }
     }
